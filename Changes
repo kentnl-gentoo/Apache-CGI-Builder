@@ -1,5 +1,8 @@
 Apache-CGI-Builder Latest Versions Changes
 
+Version 1.27
+- Re-fixed a mod_perl 2 compatibility bug (current_callback)
+- A few minor changes in the Makefile.PL and the POD
 
 Version 1.26
 - Eliminated version check and installation feedback system

@@ -3,19 +3,20 @@
 
 ; use ExtUtils::MakeMaker
 
-; my $dist = 'Apache::CGI::Builder'
-; my $vers = '1.26'
+; my $pm = 'lib/Apache/CGI/Builder.pm'
 
 ; WriteMakefile
-   ( NAME           => $dist
-   , VERSION        => $vers
+   ( NAME           => 'Apache::CGI::Builder'
+   , VERSION_FROM   => $pm
    , ( $] ge '5.005' )
-     ? ( AUTHOR     => 'Domizio Demichelis - perl.4pro.net'
-       , ABSTRACT   => 'CGI::Builder and Apache/mod_perl integration'
+     ? ( AUTHOR         => 'Domizio Demichelis - perl.4pro.net'
+       , ABSTRACT_FROM  => $pm
        )
      : ()
-   , PREREQ_PM      => { 'CGI::Builder'    => '1.2'
-                       , 'mod_perl'        => '1'
+   , PREREQ_PM      => { 'CGI::Builder'  => 1.2
+                       , 'Class::props'  => 1.62
+                       , 'Object::props' => 1.62
+                       , 'mod_perl'      => 0
                        }
    )
                           

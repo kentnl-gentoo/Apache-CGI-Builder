@@ -1,5 +1,5 @@
 package Apache::CGI::Builder ;
-$VERSION = 1.26 ;
+$VERSION = 1.27 ;
 
 # This file uses the "Perlish" coding style
 # please read http://perl.4pro.net/perlish_coding_style.html
@@ -63,7 +63,7 @@ $VERSION = 1.26 ;
 ; sub OH_init
    { my $s = shift
    ; $ENV{MOD_PERL}
-     || croak qq(Cannot use Apache::CGI::Builder without mod_perl)
+     || croak 'Cannot use Apache::CGI::Builder without mod_perl'
    ; my $filename = $s->r->filename
    ; my ( $page_name, $page_path, $page_suffix )
    ; if (-d $filename)
@@ -83,7 +83,7 @@ $VERSION = 1.26 ;
 ; sub Apache::CGI::Builder::_::dispatcher
    { my ($s, $r) = @_
    ; my $cur = MP2
-               ? Apache::current_callback()
+               ? ModPerl::Util::current_callback()
                : $r->current_callback
    ; if ( my $h = $s->can($cur) )
       { $h->(@_)
@@ -101,7 +101,7 @@ __END__
 
 Apache::CGI::Builder - CGI::Builder and Apache/mod_perl integration
 
-=head1 VERSION 1.26
+=head1 VERSION 1.27
 
 The latest versions changes are reported in the F<Changes> file in this distribution. To have the complete list of all the extensions of the CBF, see L<CGI::Builder/"Extensions List">
 
@@ -158,25 +158,13 @@ From the directory where this file is located, type:
 
 =head1 DESCRIPTION
 
+B<Note>: You should know L<CGI::Builder>.
+
 This module is a subclass of C<CGI::Builder> that supply a perl method handler to integrate your CBB with the Apache/mod_perl server: most of the interesting reading about how to organize your CBB are in L<CGI::Builder>.
 
 You should use this module B<instead of CGI::Builder> if your application can take advantage from accessing the Apache request object (available as the C<r> property), and/or to run your application in a handy and alternative way. If you don't need any of the above features, you can use the C<CGI::Builder> module that is however fully mod_perl 1 and 2 compatible.
 
 B<Note>: An extremely powerful combination with this extension is the L<CGI::Builder::Magic|CGI::Builder::Magic>, that can easily implement a sort of L<Perl Side Include|CGI::Builder::Magic/"Perl Side Include"> (sort of easier, more powerful and flexible "Server Side Include").
-
-=head2 Useful links
-
-=over
-
-=item *
-
-A simple and useful navigation system between the various CBF extensions is available at this URL: L<http://perl.4pro.net>
-
-=item *
-
-More examples and more practical topics are available in the mailing list at this URL: L<http://lists.sourceforge.net/lists/listinfo/cgi-builder-users>
-
-=back
 
 =head1 DIFFERENCES
 
@@ -223,7 +211,7 @@ You usually don't need to pass any argument to the new method, because this modu
 
 This module provides a mod_perl 1 and 2 compatible method handler which internally creates the CBB object and produce the output page, after setting a few properties.
 
-B<Note>: Since the provided handler is a B<method handler>, your mod_perl must have PERL_METHOD_HANDLERS enabled in order to work. If your mod_perl is > 1.26 you can check the option by running the following code:
+B<Note>: Since the provided handler is a B<method handler>, your mod_perl must have PERL_METHOD_HANDLERS enabled in order to work. If your mod_perl is > 1.25 you can check the option by running the following code:
 
    $ perl -MApache::MyConfig \
    -e 'print $Apache::MyConfig::Setup{PERL_METHOD_HANDLERS};'
@@ -378,11 +366,7 @@ B<Note>: the user could explicitly bypass this feature by using explicit method 
 
 =head1 SUPPORT
 
-Support for all the modules of the CBF is via the mailing list. The list is used for general support on the use of the CBF, announcements, bug reports, patches, suggestions for improvements or new features. The API to the CBF is stable, but if you use the CBF in a production environment, it's probably a good idea to keep a watch on the list.
-
-You can join the CBF mailing list at this url:
-
-L<http://lists.sourceforge.net/lists/listinfo/cgi-builder-users>
+See L<CGI::Builder/"SUPPORT">.
 
 =head1 AUTHOR and COPYRIGHT
 
