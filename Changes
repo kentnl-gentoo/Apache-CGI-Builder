@@ -1,4 +1,20 @@
 Apache-CGI-Builder Latest Versions Changes
 
+
+Version 1.2
+- Deprecated the way to include this module in your CBB: you should *use*
+  it instead of CGI::Builder and don't include it as a normal extension.
+  The old way is still working but in some next release the new way might
+  become mandatory
+- Added a compile time warning for deprecated usage
+- Changed the prerequisite C::B version to 1.2
+- Eliminated override of 'page_content_check' method not needed anymore
+  with C::B 1.2
+- Some POD adjustments
+
+Version 1.1
+- Advanced method 'page_content_check' overridden with automatic set of 404
+  status header unless status is already defined
+
 Version 1.0
 - First public release

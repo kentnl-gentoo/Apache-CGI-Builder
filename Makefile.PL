@@ -1,7 +1,7 @@
 ; use ExtUtils::MakeMaker
 
 ; my $dist = 'Apache::CGI::Builder'
-; my $vers = '1.0'
+; my $vers = '1.2'
 
 ; WriteMakefile
    ( NAME           => $dist
@@ -11,7 +11,7 @@
        , ABSTRACT   => 'CGI::Builder and Apache/mod_perl integration'
        )
      : ()
-   , PREREQ_PM      => { 'CGI::Builder'    => '1.0' }
+   , PREREQ_PM      => { 'CGI::Builder'    => '1.2' }
    )
                           
 ; eval

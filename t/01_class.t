@@ -5,9 +5,7 @@
 ; use CGI
 
 
-; use CGI::Builder
-  qw| Apache::CGI::Builder
-    |
+; use Apache::CGI::Builder
 
 # index.tmpl
 ; my $ap1 = AA1->new()
