@@ -1,6 +1,16 @@
 Apache-CGI-Builder Latest Versions Changes
 
+Version 1.22
+- Changed Makefile.PL version check
+- Added $ENV{MOD_PERL} check in CB_INIT phase
+- Some POD adjustments
 
+Version 1.21 (not published)
+- Deep rewriting of the code and the documentation
+- Important internal changes to better support A::C::B object
+  as the Perl(Response)Handler
+- Added Selfloading Perl*Handler feature
+  
 Version 1.2
 - Deprecated the way to include this module in your CBB: you should *use*
   it instead of CGI::Builder and don't include it as a normal extension.

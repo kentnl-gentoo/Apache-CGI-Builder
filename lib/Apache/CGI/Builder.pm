@@ -1,7 +1,8 @@
 package Apache::CGI::Builder ;
-$VERSION = 1.2 ;
+$VERSION = 1.22 ;
 
 ; use strict
+; use Carp
 ; $Carp::Internal{+__PACKAGE__}++
 ; use mod_perl
 ; use constant MP2 => $mod_perl::VERSION >= 1.99
@@ -13,21 +14,23 @@ $VERSION = 1.2 ;
    ; if ( MP2 )
       { require Apache::RequestRec
       ; require Apache::Response
+      ; require ModPerl::Util
       ; require Apache::Const
       ; Apache::Const->import( -compile => 'OK' )
+      ; *PerlResponseHandler = sub { shift()->PerlHandler(@_) }
       ; *handler = sub : method
-                    { shift()->Apache::CGI::Builder::_::process(@_)
+                    { shift()->Apache::CGI::Builder::_::dispatcher(@_)
                     }
       }
      else
       { require Apache::Constants
       ; Apache::Constants->import( 'OK' )
       ; *handler = sub ($$)
-                    { shift()->Apache::CGI::Builder::_::process(@_)
+                    { shift()->Apache::CGI::Builder::_::dispatcher(@_)
                     }
       }
    }
-   
+
 ; sub import
    { undef $usage
    ; require CGI::Builder
@@ -41,31 +44,49 @@ $VERSION = 1.2 ;
         }
 
 ; use Object::props
-      ( { name     => 'r'
-        , allowed  => qr/^Apache::CGI::Builder::_::process$/
+        { name     => 'r'
+        , default  => sub{ Apache->request }
         }
-      )
 
-; sub Apache::CGI::Builder::_::process
-   { my ($s, $r) = @_
-   ; my ( $PN
-        , $path
-        , $sfx
-        )
-        = File::Basename::fileparse( $r->filename
-                                   , qr/\.[^.]+$/
-                                   )
-   ; $s = $s->new( page_path   => $path
-                 , page_name   => $PN
-                 , page_suffix => $sfx
-                 , r           => $r
-                 ) unless ref $s
+; sub PerlHandler
+   { my $s = shift
+   ; $s = $s->new() unless ref $s
    ; $s->process()
    ; MP2 ? Apache::OK : Apache::Constants::OK
    }
 
-; 1
+; sub OH_init
+   { my $s = shift
+   ; $ENV{MOD_PERL}
+     || croak qq(Cannot use Apache::CGI::Builder without mod_perl)
+   ; my $filename = $s->r->filename
+   ; my ( $page_name, $page_path, $page_suffix )
+   ; if (-d $filename)
+      { $page_path = $filename
+      }
+     else
+      { ( $page_name, $page_path, $page_suffix )
+        = File::Basename::fileparse ( $filename
+                                    , qr/\.[^.]+$/
+                                    )
+      }
+   ; $s->page_name   = $page_name   unless defined $$s{page_name}
+   ; $s->page_path   = $page_path   unless defined $$s{page_path}
+   ; $s->page_suffix = $page_suffix unless defined $$s{page_suffix}
+   }
 
+; sub Apache::CGI::Builder::_::dispatcher
+   { my ($s, $r) = @_
+   ; my $cur = $r->current_callback
+   ; if ( my $h = $s->can($cur) )
+      { $h->(@_)
+      }
+     else
+      { croak qq(This CBB does not implement any "$cur" method)
+      }
+   }
+
+; 1
 
 __END__
 
@@ -73,7 +94,7 @@ __END__
 
 Apache::CGI::Builder - CGI::Builder and Apache/mod_perl integration
 
-=head1 VERSION 1.2
+=head1 VERSION 1.22
 
 The latest versions changes are reported in the F<Changes> file in this distribution. To have the complete list of all the extensions of the CBF, see L<CGI::Builder/"Extensions List">
 
@@ -90,7 +111,7 @@ The latest versions changes are reported in the F<Changes> file in this distribu
 
     perl -MCPAN -e 'install Apache::CGI::Builder'
 
-If you want to install all the extensions and prerequisites of the CBF, all in one easy step:
+You have also the possibility to use the Bundle to install all the extensions and prerequisites of the CBF in just one step. Please, notice that the Bundle will install A LOT of modules that you might not need, so use it specially if you want to extensively try the CBF.
 
     perl -MCPAN -e 'install Bundle::CGI::Builder::Complete'
 
@@ -130,45 +151,31 @@ From the directory where this file is located, type:
 
 =head1 DESCRIPTION
 
-This module is a subclass of C<CGI::Builder> that supply a perl handler to integrate your CBB with the Apache/mod_perl server.
+This module is a subclass of C<CGI::Builder> that supply a perl handler to integrate your CBB with the Apache/mod_perl server: most of the interesting reading about how to organize your CBB are in L<CGI::Builder>.
 
 You should use this module B<instead of CGI::Builder> if your application can take advantage from accessing the Apache request object (available as the C<r> property), and/or to run your application in a handy and alternative way. If you don't need any of the above features, you can use the C<CGI::Builder> module that is however fully mod_perl 1 and 2 compatible.
 
-B<Note>: most of the interesting reading about how to organize your application module are in L<CGI::Builder>.
-
 B<Note>: An extremely powerful combination with this extension is the L<CGI::Builder::Magic|CGI::Builder::Magic>, that can easily implement a sort of L<Perl Side Include|CGI::Builder::Magic/"Perl Side Include"> (sort of easier, more powerful and flexible "Server Side Include").
 
-=head2 No Instance Script needed
-
-A regular CGI::Builder application, uses an Instance Script to make an instance of the CBB. With C<Apache::CGI::Builder> the Apache/mod_perl server uses the CBB directly (throug the perl handler supplied by this module), without the need of any Instance Script.
-
-=head2 The Perl Handler
-
-This module provide a mod_perl 1 and 2 compatible handler that internally creates the CBB object and produce the output page, after setting the following properties:
+=head2 Useful links
 
 =over
 
-=item * r
+=item *
 
-This property is set to the Apache request object. Use it to interact directly with all the Apache/mod_perl internal methods.
+A simple and useful navigation system between the various CBF extensions is available at this URL: L<http://perl.4pro.net>
 
-=item * page_name
+=item *
 
-The default page_name is set to the base name of the requested filename (e.g. being the requested filename F</path/to/file.mhtml>, the default page_name will be set to 'file'). This is an alternative and handy way to avoid to pass the page_name with the query.
-
-=item * page_path
-
-The default C<page_path> property is set to the directory that contains the requested file.
-
-=item * page_suffix
-
-The default C<page_suffix> property is set to the suffix of the requested filename (e.g. being the requested filename F</path/to/file.mhtml>, the default page_suffix will be set to '.mhtml').
+More practical topics are probably discussed in the mailing list at this URL: L<http://lists.sourceforge.net/lists/listinfo/cgi-builder-users>
 
 =back
 
-B<Note>: Usually you don't need to use neither the perl handler nor these properties, because they are all internally managed.
+=head1 DIFFERENCES
 
-=head3 How to pass the page_name
+This module implements a few differences with the regular CGI::Builder module:
+
+=head2 Passing the page_name
 
 In a regular CBA the page_name usually comes from a query parameter or from code inside your application (if you have overridden the get_page_name() method). Both ways are still working with this extension, but you have another way: use the base filename of your links as the page_name.
 
@@ -187,7 +194,7 @@ Same thing with more query parameters:
     http://www.yourdomain.com/cgi-bin/IScript.pl?p=a_page&myField=aValue
     http://www.yourdomain.com/a_page?myField=aValue
 
-B<Note>: Remember that this technique utilize the default page_name. Default means that it is overridable by setting explicitly the page_name inside your code, or passing an explicit 'p' query parameter. (i.e. if you want to use the provided default, you have just to avoid to set it explicitly).
+B<Note>: Remember that this technique utilizes the default page_name. Default means that it is overridable by setting explicitly the page_name inside your code, or passing an explicit 'p' query parameter. (i.e. if you want to use the provided default, you have just to avoid to set it explicitly).
 
 B<Warning>: This extension sets the C<page_name> property to the basename of the Apache filename variable, which is the result of the C<< URI -> filename >> translation. For this reason, on some systems, the C<page_name> could be not exactly the basename of the requested URI, and it could result in a string composed by all small caps characters, even if the requested URI was composed by all upper caps characters.
 
@@ -197,9 +204,19 @@ For example this URI:
 
 could generate a C<page_name> equal to 'apage' which probably does not match with your C<SH_aPage> C<PH_aPage> handlers, so in order to avoid possible problems, I would suggest the most simple and compatible solution, which is: always use all small caps for page names, templates names, page and switch handlers, URLs, ...
 
-=head2 Apache configuration
+=head2 No Instance Script
 
-The Apache configuration for mod-perl 1 or 2 is extremely simple. In order to use e.g. your F<FooBar.pm> CBB, you have to follow these steps:
+A regular CGI::Builder application, uses an Instance Script to make an instance of the CBB. With C<Apache::CGI::Builder> the Apache/mod_perl server uses the CBB directly (throug the perl handler supplied by this module), without the need of any Instance Script.
+
+=head2 Passing Arguments
+
+You usually don't need to pass any argument to the new method, because this module internally creates the new object and executes the process at each request, but sometimes it may be useful to set some properties from outside the CBB. In order to do so, even if you don't have any instance script, you can however pass the arguments that your CBB needs from the Apache configuration files (see L<"Apache Configuration"> for more details).
+
+=head1 Apache Configuration
+
+This module provides a mod_perl 1 and 2 compatible handler that internally creates the CBB object and produce the output page, after setting a few properties.
+
+The Apache configuration for mod-perl 1 or 2 is extremely simple. In order to use e.g. your F<FooBar.pm> CBB from any F<.htaccess> file or F<httpd.conf>, you have to follow these steps:
 
 =over
 
@@ -221,7 +238,7 @@ or if your F<FooBar.pm> file is not in the mod_perl C<@INC> this will work as we
 
 =item 2 tell mod_perl to use it as a (response) handler
 
-In F<.htaccess> file
+The only difference between mod_perl 1 and 2 configuration, is the mod_perl handler name C<'PerlHandler'> that becomes C<'PerlResponseHandler'> for the version 2.
 
 For mod_perl 1:
 
@@ -233,7 +250,15 @@ For mod_perl 2:
     SetHandler perl-script
     PerlResponseHandler FooBar
 
-B<Note>: In order to use this extension, the only difference between mod_perl 1 and 2 configuration, is the mod_perl handler name C<'PerlHandler'> that becomes C<'PerlResponseHandler'> for the version 2.
+B<Note>: If you need to pass some arguments to the new object you can create and pass it as the handler:
+
+   <perl>
+       $My::Obj = FooBar->new ( my_param1 => 'value1' ,
+                                my_param2 => 'value2' )
+   </perl>
+   
+   SetHandler perl-script
+   PerlHandler $My::Obj
 
 =item 3 restrict its use to fit your needs
 
@@ -262,33 +287,77 @@ Use the Apache configuration sections C<Location>, C<Directory>, C<DirectoryMatc
 
 B<Note>: see also the F</magic_examples/perl_side_include/.htaccess> file in this distribution.
 
-=head2 Useful links
+=head1 METHODS
+
+This module adds a few internally used methods to your CBB. You don't need to use them directly, but you should know that they exist in order to avoid to unwittingly override them.
 
 =over
 
-=item *
+=item handler
 
-A simple and useful navigation system between the various CBF extensions is available at this URL: http://perl.4pro.net
+Generic method used as a handler dispatcher
 
-=item *
+=item PerlHandler
 
-More practical topics are probably discussed in the mailing list at this URL: http://lists.sourceforge.net/lists/listinfo/cgi-builder-users
+This method is used as the response handler
+
+=item PerlResponseHandler
+
+PerlHandler alias used by mod_perl 2
 
 =back
 
-=head1 PROPERTY ACCESSORS
+=head2 OH_init
 
-This module adds just one property to the standard C<CGI::Builder> properties.
+This method internally initializes the C<page_name>, C<page_path>, C<page_suffix> defaults.
+
+=head1 PROPERTY ACCESSORS
 
 =head2 r
 
-This property allows you to access the request Apache object.
+This is the only property added to the standard C<CGI::Builder> properties. It is set to the Apache request object: use it to interact directly with all the Apache/mod_perl internal methods.
 
-=head1 CBF overridden properties
+=head2 CBF changed property defaults
 
-=head2 no_page_content_status
+=head3 CBF page_name
+
+The default page_name is set to the base name of the requested filename (e.g. being the requested filename F</path/to/file.mhtml>, the default page_name will be set to 'file'). This is an alternative and handy way to avoid to pass the page_name with the query.
+
+=head3 CBF page_path
+
+The default C<page_path> property is set to the directory that contains the requested file.
+
+=head3 CBF page_suffix
+
+The default C<page_suffix> property is set to the suffix of the requested filename (e.g. being the requested filename F</path/to/file.mhtml>, the default page_suffix will be set to '.mhtml').
+
+=head1 CBF Overriding
+
+=head2 CBF no_page_content_status
 
 This extension overrides this class property by just changing the '204 No Content' (that the CBF sets when no page_content has been produced by the process), with a more consistent '404 Not Found' status. It does so because the client is requesting a simple not found page, which is a very different situation from a found CGI script that does not send any content (204 No Content).
+
+=head1 Selfloading Perl*Handlers
+
+The CBB that uses this module, will have a special feature: a sort of Selfloading of Perl*Handlers.
+
+When you pass a CBB class (or an instance of the CBB) as a Perl*handler, this module will use (as the handler) the method called with the same name of the Perl*Handler. For example:
+
+    PerlAnyHandler My::CBB
+
+which normally would mean:
+
+    PerlAnyHandler My::CBB->handler
+
+get interpreted by this module as:
+
+    PerlAnyHandler My::CBB->PerlAnyHandler
+
+This means that if any extension needs to implement any handler, it could just define a Perl*Handler() method with the same name, and recommend the use of the CBB class as that particular Perl*Handler. This feature adds some encapsulation and simplify the use of the extension.
+
+B<Note>: the user could explicitly bypass this feature by using explicit arguments e.g.:
+
+    PerlAnyHandler My::CBB->AnySpecialHandler
 
 =head1 SUPPORT
 
@@ -296,11 +365,12 @@ Support for all the modules of the CBF is via the mailing list. The list is used
 
 You can join the CBF mailing list at this url:
 
-http://lists.sourceforge.net/lists/listinfo/cgi-builder-users
+L<http://lists.sourceforge.net/lists/listinfo/cgi-builder-users>
 
 =head1 AUTHOR and COPYRIGHT
 
-© 2004 by Domizio Demichelis (http://perl.4pro.net)
+© 2004 by Domizio Demichelis (L<http://perl.4pro.net>)
 
 All Rights Reserved. This module is free software. It may be used, redistributed and/or modified under the same terms as perl itself.
+
 
