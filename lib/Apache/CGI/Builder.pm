@@ -1,5 +1,5 @@
 package Apache::CGI::Builder ;
-$VERSION = 1.25 ;
+$VERSION = 1.26 ;
 
 # This file uses the "Perlish" coding style
 # please read http://perl.4pro.net/perlish_coding_style.html
@@ -101,7 +101,7 @@ __END__
 
 Apache::CGI::Builder - CGI::Builder and Apache/mod_perl integration
 
-=head1 VERSION 1.25
+=head1 VERSION 1.26
 
 The latest versions changes are reported in the F<Changes> file in this distribution. To have the complete list of all the extensions of the CBF, see L<CGI::Builder/"Extensions List">
 
@@ -130,8 +130,6 @@ From the directory where this file is located, type:
     make
     make test
     make install
-
-B<Note>: The installation of this module runs an automatic version check connection which will warn you in case a newer version is available: please don't use old versions, because I can give you full support only for current versions. Besides, since CPAN does not provide any download statistic to the authors, this check allows me also to keep my own installation counter. Version checking is transparent to regular users, while CPAN testers should skip it by running the Makefile.PL with NO_VERSION_CHECK=1.
 
 =back
 
@@ -225,7 +223,7 @@ You usually don't need to pass any argument to the new method, because this modu
 
 This module provides a mod_perl 1 and 2 compatible method handler which internally creates the CBB object and produce the output page, after setting a few properties.
 
-B<Note>: Since the provided handler is a B<method handler>, your mod_perl must have PERL_METHOD_HANDLERS enabled in order to work. If your mod_perl is > 1.25 you can check the option by running the following code:
+B<Note>: Since the provided handler is a B<method handler>, your mod_perl must have PERL_METHOD_HANDLERS enabled in order to work. If your mod_perl is > 1.26 you can check the option by running the following code:
 
    $ perl -MApache::MyConfig \
    -e 'print $Apache::MyConfig::Setup{PERL_METHOD_HANDLERS};'
