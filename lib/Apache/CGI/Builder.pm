@@ -1,5 +1,8 @@
 package Apache::CGI::Builder ;
-$VERSION = 1.22 ;
+$VERSION = 1.23 ;
+
+# This file uses the "Perlish" coding style
+# please read http://perl.4pro.net/perlish_coding_style.html
 
 ; use strict
 ; use Carp
@@ -94,7 +97,7 @@ __END__
 
 Apache::CGI::Builder - CGI::Builder and Apache/mod_perl integration
 
-=head1 VERSION 1.22
+=head1 VERSION 1.23
 
 The latest versions changes are reported in the F<Changes> file in this distribution. To have the complete list of all the extensions of the CBF, see L<CGI::Builder/"Extensions List">
 
@@ -104,7 +107,7 @@ The latest versions changes are reported in the F<Changes> file in this distribu
 
 =item Prerequisites
 
-    Apache/mod_perl 1 or 2
+    Apache/mod_perl 1 or 2 (PERL_METHOD_HANDLERS enabled)
     CGI::Builder >= 1.2
 
 =item CPAN
@@ -123,6 +126,8 @@ From the directory where this file is located, type:
     make
     make test
     make install
+
+B<Note>: The installation of this module runs an automatic version check connection which will warn you in case a newer version is available: please don't use old versions, because I can give you full support only for current versions. Besides, since CPAN does not provide any download statistic to the authors, this check allows me also to keep my own installation counter. Version checking is transparent to regular users, while CPAN testers should skip it by running the Makefile.PL with NO_VERSION_CHECK=1.
 
 =back
 
@@ -151,7 +156,7 @@ From the directory where this file is located, type:
 
 =head1 DESCRIPTION
 
-This module is a subclass of C<CGI::Builder> that supply a perl handler to integrate your CBB with the Apache/mod_perl server: most of the interesting reading about how to organize your CBB are in L<CGI::Builder>.
+This module is a subclass of C<CGI::Builder> that supply a perl method handler to integrate your CBB with the Apache/mod_perl server: most of the interesting reading about how to organize your CBB are in L<CGI::Builder>.
 
 You should use this module B<instead of CGI::Builder> if your application can take advantage from accessing the Apache request object (available as the C<r> property), and/or to run your application in a handy and alternative way. If you don't need any of the above features, you can use the C<CGI::Builder> module that is however fully mod_perl 1 and 2 compatible.
 
@@ -206,7 +211,7 @@ could generate a C<page_name> equal to 'apage' which probably does not match wit
 
 =head2 No Instance Script
 
-A regular CGI::Builder application, uses an Instance Script to make an instance of the CBB. With C<Apache::CGI::Builder> the Apache/mod_perl server uses the CBB directly (throug the perl handler supplied by this module), without the need of any Instance Script.
+A regular CGI::Builder application, uses an Instance Script to make an instance of the CBB. With C<Apache::CGI::Builder> the Apache/mod_perl server uses the CBB directly (throug the perl method handler supplied by this module), without the need of any Instance Script.
 
 =head2 Passing Arguments
 
@@ -214,7 +219,13 @@ You usually don't need to pass any argument to the new method, because this modu
 
 =head1 Apache Configuration
 
-This module provides a mod_perl 1 and 2 compatible handler that internally creates the CBB object and produce the output page, after setting a few properties.
+This module provides a mod_perl 1 and 2 compatible method handler which internally creates the CBB object and produce the output page, after setting a few properties.
+
+B<Note>: Since the provided handler is a B<method handler>, your mod_perl must have PERL_METHOD_HANDLERS enabled in order to work. If your mod_perl is > 1.25 you can check the option by running the following code:
+
+   $ perl -MApache::MyConfig \
+   -e 'print $Apache::MyConfig::Setup{PERL_METHOD_HANDLERS};'
+   1
 
 The Apache configuration for mod-perl 1 or 2 is extremely simple. In order to use e.g. your F<FooBar.pm> CBB from any F<.htaccess> file or F<httpd.conf>, you have to follow these steps:
 
@@ -295,11 +306,11 @@ This module adds a few internally used methods to your CBB. You don't need to us
 
 =item handler
 
-Generic method used as a handler dispatcher
+Generic method used as a method handler dispatcher
 
 =item PerlHandler
 
-This method is used as the response handler
+This method is used as the response method handler
 
 =item PerlResponseHandler
 
@@ -341,7 +352,7 @@ This extension overrides this class property by just changing the '204 No Conten
 
 The CBB that uses this module, will have a special feature: a sort of Selfloading of Perl*Handlers.
 
-When you pass a CBB class (or an instance of the CBB) as a Perl*handler, this module will use (as the handler) the method called with the same name of the Perl*Handler. For example:
+When you pass a CBB class (or an instance of the CBB) as a Perl*Handler, this module will use (as the method handler) the method called with the same name of the Perl*Handler. For example:
 
     PerlAnyHandler My::CBB
 
@@ -355,7 +366,7 @@ get interpreted by this module as:
 
 This means that if any extension needs to implement any handler, it could just define a Perl*Handler() method with the same name, and recommend the use of the CBB class as that particular Perl*Handler. This feature adds some encapsulation and simplify the use of the extension.
 
-B<Note>: the user could explicitly bypass this feature by using explicit arguments e.g.:
+B<Note>: the user could explicitly bypass this feature by using explicit method handlers e.g.:
 
     PerlAnyHandler My::CBB->AnySpecialHandler
 
