@@ -1,5 +1,5 @@
 package Apache::CGI::Builder ;
-$VERSION = 1.23 ;
+$VERSION = 1.24 ;
 
 # This file uses the "Perlish" coding style
 # please read http://perl.4pro.net/perlish_coding_style.html
@@ -55,7 +55,9 @@ $VERSION = 1.23 ;
    { my $s = shift
    ; $s = $s->new() unless ref $s
    ; $s->process()
-   ; MP2 ? Apache::OK : Apache::Constants::OK
+   ; MP2
+     ? Apache::OK
+     : Apache::Constants::OK
    }
 
 ; sub OH_init
@@ -70,7 +72,7 @@ $VERSION = 1.23 ;
      else
       { ( $page_name, $page_path, $page_suffix )
         = File::Basename::fileparse ( $filename
-                                    , qr/\.[^.]+$/
+                                    , qr/\..+$/
                                     )
       }
    ; $s->page_name   = $page_name   unless defined $$s{page_name}
@@ -80,7 +82,9 @@ $VERSION = 1.23 ;
 
 ; sub Apache::CGI::Builder::_::dispatcher
    { my ($s, $r) = @_
-   ; my $cur = $r->current_callback
+   ; my $cur = MP2
+               ? Apache::current_callback
+               : $r->current_callback
    ; if ( my $h = $s->can($cur) )
       { $h->(@_)
       }
@@ -97,7 +101,7 @@ __END__
 
 Apache::CGI::Builder - CGI::Builder and Apache/mod_perl integration
 
-=head1 VERSION 1.23
+=head1 VERSION 1.24
 
 The latest versions changes are reported in the F<Changes> file in this distribution. To have the complete list of all the extensions of the CBF, see L<CGI::Builder/"Extensions List">
 
@@ -172,7 +176,7 @@ A simple and useful navigation system between the various CBF extensions is avai
 
 =item *
 
-More practical topics are probably discussed in the mailing list at this URL: L<http://lists.sourceforge.net/lists/listinfo/cgi-builder-users>
+More examples and more practical topics are available in the mailing list at this URL: L<http://lists.sourceforge.net/lists/listinfo/cgi-builder-users>
 
 =back
 
@@ -334,6 +338,8 @@ This is the only property added to the standard C<CGI::Builder> properties. It i
 
 The default page_name is set to the base name of the requested filename (e.g. being the requested filename F</path/to/file.mhtml>, the default page_name will be set to 'file'). This is an alternative and handy way to avoid to pass the page_name with the query.
 
+B<Note>:In case you have to handle a file with a multiple suffix like 'file.tar.gz' the C<page_name> will be 'file'
+
 =head3 CBF page_path
 
 The default C<page_path> property is set to the directory that contains the requested file.
@@ -341,6 +347,8 @@ The default C<page_path> property is set to the directory that contains the requ
 =head3 CBF page_suffix
 
 The default C<page_suffix> property is set to the suffix of the requested filename (e.g. being the requested filename F</path/to/file.mhtml>, the default page_suffix will be set to '.mhtml').
+
+B<Note>:In case you have to handle a file with a multiple suffix like 'file.tar.gz' the C<suffix> will be '.tar.gz'
 
 =head1 CBF Overriding
 

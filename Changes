@@ -1,6 +1,10 @@
 Apache-CGI-Builder Latest Versions Changes
 
 
+Version 1.24
+- Fixed multiple suffix handling (e.g. file.tar.gz)
+- Fixed a mod_perl 2 compatibility bug (current_callback)
+
 Version 1.23
 - A few POD improvement and fixes
 

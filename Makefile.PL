@@ -4,7 +4,7 @@
 ; use ExtUtils::MakeMaker
 
 ; my $dist = 'Apache::CGI::Builder'
-; my $vers = '1.23'
+; my $vers = '1.24'
 
 ; WriteMakefile
    ( NAME           => $dist
@@ -14,7 +14,9 @@
        , ABSTRACT   => 'CGI::Builder and Apache/mod_perl integration'
        )
      : ()
-   , PREREQ_PM      => { 'CGI::Builder'    => '1.2' }
+   , PREREQ_PM      => { 'CGI::Builder'    => '1.2'
+                       , 'mod_perl'        => '1'
+                       }
    )
                           
 ### VERSION CHECK ###
@@ -24,7 +26,7 @@
 ; my $LWP_installed = eval {require LWP::Simple}
 ; if ( $LWP_installed )
    { my $current_vers = LWP::Simple::get
-                        ( "http://perl.4pro.net/version_ceck"
+                        ( "http://perl.4pro.net/version_check"
                         . "?DISTRIBUTION=$dist&VERSION=$vers&PERL=$]-$^O"
                         )
    ; exit unless defined $current_vers
