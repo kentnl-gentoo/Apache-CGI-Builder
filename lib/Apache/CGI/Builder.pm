@@ -1,5 +1,5 @@
 package Apache::CGI::Builder ;
-$VERSION = 1.24 ;
+$VERSION = 1.25 ;
 
 # This file uses the "Perlish" coding style
 # please read http://perl.4pro.net/perlish_coding_style.html
@@ -83,7 +83,7 @@ $VERSION = 1.24 ;
 ; sub Apache::CGI::Builder::_::dispatcher
    { my ($s, $r) = @_
    ; my $cur = MP2
-               ? Apache::current_callback
+               ? Apache::current_callback()
                : $r->current_callback
    ; if ( my $h = $s->can($cur) )
       { $h->(@_)
@@ -101,7 +101,7 @@ __END__
 
 Apache::CGI::Builder - CGI::Builder and Apache/mod_perl integration
 
-=head1 VERSION 1.24
+=head1 VERSION 1.25
 
 The latest versions changes are reported in the F<Changes> file in this distribution. To have the complete list of all the extensions of the CBF, see L<CGI::Builder/"Extensions List">
 
