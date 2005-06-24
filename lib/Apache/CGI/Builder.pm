@@ -1,5 +1,5 @@
 package Apache::CGI::Builder ;
-$VERSION = 1.27 ;
+$VERSION = 1.28 ;
 
 # This file uses the "Perlish" coding style
 # please read http://perl.4pro.net/perlish_coding_style.html
@@ -8,13 +8,14 @@ $VERSION = 1.27 ;
 ; use Carp
 ; $Carp::Internal{+__PACKAGE__}++
 ; use mod_perl
-; use constant MP2 => $mod_perl::VERSION >= 1.99
-; our $usage = qq(Apache::CGI::Builder should be used INSTEAD of CGI::Builder )
-             . qq(and should not be included as an extension)
+; our $usage = << ''
+Apache2::CGI::Builder should be used INSTEAD of CGI::Builder and should not be included as an extension
+
+; my $MP2
 
 ; BEGIN
    { require File::Basename
-   ; if ( MP2 )
+   ; if ( $MP2 = $mod_perl::VERSION >= 1.99 )
       { require Apache::RequestRec
       ; require Apache::Response
       ; require ModPerl::Util
@@ -55,15 +56,15 @@ $VERSION = 1.27 ;
    { my $s = shift
    ; $s = $s->new() unless ref $s
    ; $s->process()
-   ; MP2
-     ? Apache::OK
-     : Apache::Constants::OK
+   ; $MP2
+     ? Apache::OK()
+     : Apache::Constants::OK()
    }
 
 ; sub OH_init
    { my $s = shift
    ; $ENV{MOD_PERL}
-     || croak 'Cannot use Apache::CGI::Builder without mod_perl'
+     or croak 'Cannot use Apache::CGI::Builder without mod_perl, died'
    ; my $filename = $s->r->filename
    ; my ( $page_name, $page_path, $page_suffix )
    ; if (-d $filename)
@@ -82,14 +83,16 @@ $VERSION = 1.27 ;
 
 ; sub Apache::CGI::Builder::_::dispatcher
    { my ($s, $r) = @_
-   ; my $cur = MP2
+   ; my $cur = $MP2
                ? ModPerl::Util::current_callback()
                : $r->current_callback
    ; if ( my $h = $s->can($cur) )
       { $h->(@_)
       }
      else
-      { croak qq(This CBB does not implement any "$cur" method)
+      { croak sprintf '"%s" does not implement any "%s" method, died'
+                    , ref $s
+                    , $cur
       }
    }
 
@@ -101,7 +104,7 @@ __END__
 
 Apache::CGI::Builder - CGI::Builder and Apache/mod_perl integration
 
-=head1 VERSION 1.27
+=head1 VERSION 1.28
 
 The latest versions changes are reported in the F<Changes> file in this distribution. To have the complete list of all the extensions of the CBF, see L<CGI::Builder/"Extensions List">
 
@@ -165,6 +168,8 @@ This module is a subclass of C<CGI::Builder> that supply a perl method handler t
 You should use this module B<instead of CGI::Builder> if your application can take advantage from accessing the Apache request object (available as the C<r> property), and/or to run your application in a handy and alternative way. If you don't need any of the above features, you can use the C<CGI::Builder> module that is however fully mod_perl 1 and 2 compatible.
 
 B<Note>: An extremely powerful combination with this extension is the L<CGI::Builder::Magic|CGI::Builder::Magic>, that can easily implement a sort of L<Perl Side Include|CGI::Builder::Magic/"Perl Side Include"> (sort of easier, more powerful and flexible "Server Side Include").
+
+B<IMPORTANT NOTE>: If you use 'mod_perl2' (new namespace), you must use the L<Apache2::CGI::Builder|Apache2::CGI::Builder> module, installed with this distribution.
 
 =head1 DIFFERENCES
 

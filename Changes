@@ -1,5 +1,10 @@
 Apache-CGI-Builder Latest Versions Changes
 
+Version 1.28
+- Added the Apache2::CGI::Builder module, compilant with the mod_perl2
+  new namespace
+- Changed the MP2 constant, to the lexical $MP2
+
 Version 1.27
 - Re-fixed a mod_perl 2 compatibility bug (current_callback)
 - A few minor changes in the Makefile.PL and the POD
