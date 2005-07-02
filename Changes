@@ -1,5 +1,8 @@
 Apache-CGI-Builder Latest Versions Changes
 
+Version 1.29
+- Maintainance release. A few minor changes
+
 Version 1.28
 - Added the Apache2::CGI::Builder module, compilant with the mod_perl2
   new namespace

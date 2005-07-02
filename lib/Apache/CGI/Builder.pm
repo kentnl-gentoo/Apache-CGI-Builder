@@ -1,10 +1,9 @@
 package Apache::CGI::Builder ;
-$VERSION = 1.28 ;
-
+$VERSION = 1.29 ;
+use strict ;
 # This file uses the "Perlish" coding style
 # please read http://perl.4pro.net/perlish_coding_style.html
 
-; use strict
 ; use Carp
 ; $Carp::Internal{+__PACKAGE__}++
 ; use mod_perl
@@ -100,11 +99,13 @@ Apache2::CGI::Builder should be used INSTEAD of CGI::Builder and should not be i
 
 __END__
 
+=pod
+
 =head1 NAME
 
 Apache::CGI::Builder - CGI::Builder and Apache/mod_perl integration
 
-=head1 VERSION 1.28
+=head1 VERSION 1.29
 
 The latest versions changes are reported in the F<Changes> file in this distribution. To have the complete list of all the extensions of the CBF, see L<CGI::Builder/"Extensions List">
 
@@ -379,4 +380,4 @@ See L<CGI::Builder/"SUPPORT">.
 
 All Rights Reserved. This module is free software. It may be used, redistributed and/or modified under the same terms as perl itself.
 
-
+=cut
