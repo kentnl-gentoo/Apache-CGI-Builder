@@ -1,5 +1,5 @@
 package Apache::CGI::Builder ;
-$VERSION = 1.29 ;
+$VERSION = 1.3 ;
 use strict ;
 # This file uses the "Perlish" coding style
 # please read http://perl.4pro.net/perlish_coding_style.html
@@ -75,9 +75,9 @@ Apache2::CGI::Builder should be used INSTEAD of CGI::Builder and should not be i
                                     , qr/\..+$/
                                     )
       }
-   ; $s->page_name   = $page_name   unless defined $$s{page_name}
-   ; $s->page_path   = $page_path   unless defined $$s{page_path}
-   ; $s->page_suffix = $page_suffix unless defined $$s{page_suffix}
+   ; $s->page_name($page_name)     unless defined $$s{page_name}
+   ; $s->page_path($page_path)     unless defined $$s{page_path}
+   ; $s->page_suffix($page_suffix) unless defined $$s{page_suffix}
    }
 
 ; sub Apache::CGI::Builder::_::dispatcher
@@ -103,9 +103,9 @@ __END__
 
 =head1 NAME
 
-Apache::CGI::Builder - CGI::Builder and Apache/mod_perl integration
+Apache::CGI::Builder - CGI::Builder and Apache/mod_perl (1 and 2) integration
 
-=head1 VERSION 1.29
+=head1 VERSION 1.3
 
 The latest versions changes are reported in the F<Changes> file in this distribution. To have the complete list of all the extensions of the CBF, see L<CGI::Builder/"Extensions List">
 
