@@ -3,10 +3,10 @@
 
 ; use ExtUtils::MakeMaker
 
-; my $pm = 'lib/Apache/CGI/Builder.pm'
+; my $pm = 'lib/Apache2/CGI/Builder.pm'
 
 ; WriteMakefile
-   ( NAME           => 'Apache::CGI::Builder'
+   ( NAME           => 'Apache2::CGI::Builder'
    , VERSION_FROM   => $pm
    , ( $] ge '5.005' )
      ? ( AUTHOR         => 'Domizio Demichelis - perl.4pro.net'
@@ -16,7 +16,7 @@
    , PREREQ_PM      => { 'CGI::Builder'  => 1.2
                        , 'Class::props'  => 1.62
                        , 'Object::props' => 1.62
-                       , 'mod_perl'      => 0
+                       , 'mod_perl2'     => 0
                        }
    )
                           

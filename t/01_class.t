@@ -3,7 +3,7 @@
 ; use strict
 ; use Test::More tests => 1
 
-; use Apache::CGI::Builder
+; use Apache2::CGI::Builder
 
 ; ok(1)
 

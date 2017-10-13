@@ -1,5 +1,4 @@
 Changes
-lib/Apache/CGI/Builder.pm
 lib/Apache2/CGI/Builder.pm
 Makefile.PL
 MANIFEST			This list of files
